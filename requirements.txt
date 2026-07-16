@@ -1,0 +1,22 @@
+# Pinned versions - production runs on Linux/CUDA
+torch==2.4.0
+transformers==4.44.2
+accelerate==0.34.2
+bitsandbytes==0.43.3
+datasets==2.20.0
+huggingface_hub==0.24.6
+sentencepiece==0.2.0
+protobuf==5.28.0
+
+# Analysis stack
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.14.1
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Reproducibility instrumentation
+codecarbon==2.7.2
+
+# lm-evaluation-harness (pin to a specific commit for reproducibility)
+lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness.git@v0.4.7

@@ -1,0 +1,29 @@
+# lm-evaluation-harness custom task definition.
+# Drop this directory into the harness with:
+#   lm_eval --include_path ./custom_probe --tasks custom_probe ...
+
+task: custom_probe
+dataset_path: json
+dataset_kwargs:
+  data_files:
+    validation: items.jsonl
+output_type: multiple_choice
+training_split: null
+validation_split: validation
+test_split: null
+
+# CrowS-Pairs-style pair-preference scoring:
+# compute log-likelihood of each sentence and pick the stereotypical one.
+doc_to_text: ""
+doc_to_target: 0
+doc_to_choice: "{{ [stereotype, less_stereotype] }}"
+
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: false
+
+metadata:
+  version: 0.1
+  author: L.F.O.P.
+  purpose: "Sensitivity check for the three main bias benchmarks (BBQ, StereoSet, CrowS-Pairs)."

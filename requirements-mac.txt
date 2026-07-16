@@ -1,0 +1,31 @@
+# macOS/Apple Silicon - use MPS backend and MLX for local dev + pilot
+# bitsandbytes has no CUDA path, so 4-bit quantisation is done via MLX / GGUF locally.
+# Full production runs still happen on Linux/CUDA (see requirements.txt).
+
+torch==2.4.0
+transformers==4.44.2
+accelerate==0.34.2
+datasets==2.20.0
+huggingface_hub==0.24.6
+sentencepiece==0.2.0
+protobuf==5.28.0
+
+# Apple MLX for M-series native execution
+mlx==0.19.0
+mlx-lm==0.19.0
+
+# Alternative local backend: llama.cpp (via Python bindings)
+llama-cpp-python==0.3.1
+
+# Analysis stack (same as Linux)
+pandas==2.2.3
+numpy==1.26.4
+scipy==1.14.1
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Reproducibility instrumentation
+codecarbon==2.7.2
+
+# lm-evaluation-harness
+lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness.git@v0.4.7

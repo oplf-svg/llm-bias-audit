@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install lint tools
+        run: pip install ruff==0.6.9
+      - name: Ruff
+        run: ruff check analysis/ scripts/
+
+  imports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal deps
+        run: |
+          pip install --upgrade pip
+          pip install pandas==2.2.3 numpy==1.26.4 scipy==1.14.1 matplotlib==3.9.2 \
+                      seaborn==0.13.2 statsmodels==0.14.4 pyarrow==17.0.0
+      - name: Import smoke-test analysis modules
+        run: |
+          python -c "import analysis.harmonise, analysis.agreement, analysis.divergence, analysis.report; print('imports ok')"

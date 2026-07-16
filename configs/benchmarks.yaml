@@ -1,0 +1,49 @@
+# Benchmark tasks executed by lm-evaluation-harness.
+# harness_commit is pinned at study start; changing it forfeits reproducibility.
+
+harness_commit: v0.4.7
+
+tasks:
+  bbq:
+    harness_id: bbq
+    citation: "Parrish et al. (2022) DOI:10.18653/v1/2022.findings-acl.165"
+    licence: "CC-BY-SA 4.0"
+    hf_dataset: heegyu/bbq
+    revision: <PIN>
+    n_items_approx: 58000
+    scoring: "accuracy (ambiguous + disambiguated), BBQ bias score"
+    categories: [age, disability_status, gender_identity, nationality,
+                 physical_appearance, race_ethnicity, religion, ses, sexual_orientation]
+
+  stereoset:
+    harness_id: stereoset
+    citation: "Nadeem et al. (2021) DOI:10.18653/v1/2021.acl-long.416"
+    licence: "MIT"
+    hf_dataset: McGill-NLP/stereoset
+    revision: <PIN>
+    n_items_approx: 4000
+    scoring: "stereotype score (SS), language modelling score (LMS)"
+    categories: [gender, profession, race, religion]
+
+  crows_pairs:
+    harness_id: crows_pairs_english
+    citation: "Nangia et al. (2020) DOI:10.18653/v1/2020.emnlp-main.154"
+    licence: "academic use"
+    hf_dataset: BigScienceBiasEval/crows_pairs_multilingual
+    revision: <PIN>
+    n_items: 1508
+    scoring: "pair-preference rate over stereotypical vs. less-stereotypical sentences"
+    categories: [age, disability, gender, nationality, physical_appearance,
+                 race_color, religion, sexual_orientation, socioeconomic]
+
+  custom_probe:
+    harness_id: custom_probe
+    citation: "Orozco Perez (2026) - unpublished student project probe"
+    licence: "MIT (analysis code); items authored by researcher"
+    local_task_dir: ./custom_probe/
+    n_items_target: [50, 150]
+    scoring: "pair-preference rate (CrowS-Pairs protocol)"
+    role: "sensitivity check, not headline finding"
+
+output_format: jsonl
+log_samples: true

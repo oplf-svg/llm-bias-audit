@@ -1,0 +1,103 @@
+# ==============================================================
+# Python
+# ==============================================================
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*.local
+*.egg-info/
+build/
+dist/
+
+# ==============================================================
+# Secrets & credentials  (never commit any of these)
+# ==============================================================
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.*
+secrets.*
+secrets/
+.secrets/
+.aws/
+.gcloud/
+huggingface_token*
+hf_token*
+.hf_token
+**/*.env.local
+
+# ==============================================================
+# Personal data  (signatures, IDs, contact details)
+# ==============================================================
+signature*.png
+signature*.jpg
+signature*.jpeg
+*_signature.*
+personal_info.*
+AUTHOR.local.md
+
+# ==============================================================
+# Results (large, regenerated from code + seed)
+# ==============================================================
+results/*.json
+results/*.jsonl
+results/*.parquet
+results/*.csv
+results/figures/
+results/tables/
+results/full/
+results/pilot/
+results/determinism_check/
+!results/.gitkeep
+
+# ==============================================================
+# HuggingFace / model caches (large binaries)
+# ==============================================================
+.cache/
+~/.cache/huggingface/
+models/
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.ckpt
+
+# ==============================================================
+# Jupyter
+# ==============================================================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ==============================================================
+# OS junk
+# ==============================================================
+.DS_Store
+._.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# ==============================================================
+# IDE
+# ==============================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==============================================================
+# CodeCarbon output
+# ==============================================================
+emissions.csv
+.codecarbon/
+
+# ==============================================================
+# Docker
+# ==============================================================
+.docker/
