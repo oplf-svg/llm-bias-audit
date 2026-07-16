@@ -2,7 +2,7 @@
 
 Comparative evaluation of three social-bias benchmarks (BBQ, StereoSet, CrowS-Pairs) plus a small hand-built custom probe, applied to a panel of open-source large language models.
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/<your-handle>/llm-bias-audit/blob/main/notebooks/00-colab-pilot.ipynb)
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/oplf-svg/llm-bias-audit/blob/main/notebooks/00-colab-pilot.ipynb)
 
 **Author:** L.F.O.P. (…4755)
 **Supervisor:** P.S.
@@ -17,7 +17,7 @@ To compare how three widely-used social-bias benchmarks (BBQ, StereoSet, CrowS-P
 ## Quick start (one command)
 
 ```bash
-git clone https://github.com/<your-handle>/llm-bias-audit.git
+git clone https://github.com/oplf-svg/llm-bias-audit.git
 cd llm-bias-audit
 make install                        # auto-detects OS
 huggingface-cli login

@@ -69,4 +69,4 @@ push-repo:                ## First-time push to a new private GitHub repo
 	@echo "  gh repo create llm-bias-audit --private --source=. --push"
 
 colab-link:               ## Print the Colab link for the pilot notebook
-	@echo "https://colab.research.google.com/github/<your-handle>/llm-bias-audit/blob/main/notebooks/00-colab-pilot.ipynb"
+	@echo "https://colab.research.google.com/github/oplf-svg/llm-bias-audit/blob/main/notebooks/00-colab-pilot.ipynb"

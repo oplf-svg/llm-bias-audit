@@ -9,7 +9,7 @@ Open the Colab notebook: **`notebooks/00-colab-pilot.ipynb`** (click the "Open i
 Requires: macOS Apple Silicon **or** Linux with an NVIDIA GPU, plus `git` and `make`.
 
 ```bash
-git clone https://github.com/<your-handle>/llm-bias-audit.git
+git clone https://github.com/oplf-svg/llm-bias-audit.git
 cd llm-bias-audit
 make install                        # auto-detects OS, installs pinned deps
 huggingface-cli login               # paste your HF token
@@ -20,7 +20,7 @@ make pilot                          # smoke test (~15 min)
 
 ```bash
 # On any Linux/CUDA cloud instance (RunPod, vast.ai, Lambda, etc.)
-git clone https://github.com/<your-handle>/llm-bias-audit.git
+git clone https://github.com/oplf-svg/llm-bias-audit.git
 cd llm-bias-audit
 make install
 huggingface-cli login
@@ -36,7 +36,7 @@ make report                         # figures + tables
 Requires: Docker + NVIDIA Container Toolkit on the host.
 
 ```bash
-git clone https://github.com/<your-handle>/llm-bias-audit.git
+git clone https://github.com/oplf-svg/llm-bias-audit.git
 cd llm-bias-audit
 make docker-build                   # build the pinned image locally
 make docker-full                    # run the full panel inside Docker
