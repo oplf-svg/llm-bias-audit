@@ -1,0 +1,60 @@
+# Pinned model panel for the study.
+# All models loaded from HuggingFace at a specific commit hash for reproducibility.
+# TO DO: replace <PIN> with actual commit hashes at study start; do NOT run without pins.
+
+panel:
+  - id: phi-3-mini
+    repo_id: microsoft/Phi-3-mini-4k-instruct
+    revision: <PIN>
+    params_b: 3.8
+    quant: nf4                     # 4-bit NF4 via bitsandbytes (CUDA only)
+    quant_mac: q4_k_m              # GGUF Q4_K_M via llama.cpp (macOS)
+    context_length: 4096
+    gated: false
+    licence: MIT
+    notes: "Pilot target - smallest, fastest, unrestricted."
+
+  - id: mistral-7b-v0.3
+    repo_id: mistralai/Mistral-7B-v0.3
+    revision: <PIN>
+    params_b: 7.0
+    quant: nf4
+    quant_mac: q4_k_m
+    context_length: 32768
+    gated: false
+    licence: Apache-2.0
+
+  - id: qwen2-7b
+    repo_id: Qwen/Qwen2-7B
+    revision: <PIN>
+    params_b: 7.0
+    quant: nf4
+    quant_mac: q4_k_m
+    context_length: 32768
+    gated: false
+    licence: Apache-2.0
+
+  - id: llama-3.1-8b
+    repo_id: meta-llama/Meta-Llama-3.1-8B
+    revision: <PIN>
+    params_b: 8.0
+    quant: nf4
+    quant_mac: q4_k_m
+    context_length: 8192
+    gated: true
+    licence: "Llama 3.1 Community Licence"
+    notes: "Requires licence acceptance at https://huggingface.co/meta-llama/Meta-Llama-3.1-8B"
+
+  # Placeholder for one 2025-2026 release to be selected during pilot
+  # - id: <2025-26-release>
+  #   repo_id: <hf-org/model>
+  #   revision: <PIN>
+  #   params_b: <n>
+  #   quant: nf4
+  #   context_length: <n>
+  #   gated: <bool>
+  #   licence: <licence>
+
+seed: 42
+decoding: greedy
+device_map: auto

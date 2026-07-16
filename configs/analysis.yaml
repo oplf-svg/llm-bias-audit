@@ -1,0 +1,23 @@
+# Statistical analysis parameters.
+
+standardisation:
+  method: z_within_benchmark        # z-standardise raw scores within each benchmark before aggregation
+
+agreement:
+  spearman: true                     # RQ1
+  kendall: true                      # RQ1
+  bootstrap:
+    n_resamples: 10000
+    ci_alpha: 0.05
+
+divergence:
+  wilcoxon_signed_rank: true         # RQ2 (paired, per category)
+  friedman: true                     # RQ2 (across all benchmarks)
+  effect_size: rank_biserial
+  multiple_comparisons: benjamini_hochberg
+
+random_seed: 42
+plotting:
+  style: seaborn-v0_8-whitegrid
+  dpi: 200
+  export_formats: [png, svg, pdf]
