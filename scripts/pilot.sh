@@ -33,6 +33,7 @@ lm_eval \
   --seed 42 \
   --batch_size 1 \
   --output_path "${OUT_DIR}" \
+  --trust_remote_code \
   --log_samples \
   --verbosity INFO
 

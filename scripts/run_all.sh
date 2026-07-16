@@ -65,7 +65,8 @@ for MODEL in "${MODELS[@]}"; do
     --seed 42 \
     --batch_size auto \
     --output_path "${MODEL_OUT}" \
-    --log_samples \
+    --trust_remote_code \
+  --log_samples \
     --verbosity INFO
 
   # Mark this model complete
