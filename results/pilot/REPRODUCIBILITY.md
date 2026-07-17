@@ -1,6 +1,6 @@
 # Pilot execution log
 
-- Harvested: 2026-07-17T11:17:54.261276Z
+- Harvested: 2026-07-17T11:26:34.471363Z
 - Model: `microsoft/Phi-3-mini-4k-instruct`
 - Tasks: crows_pairs_english
 - Seed: 42
