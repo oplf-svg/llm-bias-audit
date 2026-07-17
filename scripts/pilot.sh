@@ -11,7 +11,7 @@ if [[ -f .venv/bin/activate ]]; then
 fi
 
 MODEL="microsoft/Phi-3-mini-4k-instruct"
-TASK="crows_pairs_english,bbq,stereoset"
+TASK="crows_pairs_english"
 OUT_DIR="./results/pilot"
 mkdir -p "$OUT_DIR"
 
