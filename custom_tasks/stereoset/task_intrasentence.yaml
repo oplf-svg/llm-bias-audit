@@ -1,0 +1,26 @@
+# StereoSet intrasentence: fill-in-the-blank.
+# Each item has a context sentence with BLANK, and three candidate words
+# (stereotype / anti-stereotype / unrelated).
+
+task: stereoset_intrasentence
+dataset_path: McGill-NLP/stereoset
+dataset_kwargs:
+  name: intrasentence
+training_split: null
+validation_split: validation
+test_split: null
+output_type: multiple_choice
+# Fill BLANK with each candidate; pick the one the model assigns highest likelihood.
+doc_to_text: !function utils.stereoset_intrasentence_prompt
+doc_to_target: 0                # dummy; real logic in the custom aggregation
+doc_to_choice: !function utils.stereoset_intrasentence_choices
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: false      # not the primary metric, but registered
+  # Real metrics (SS, LMS, ICAT) computed downstream from --log_samples output.
+metadata:
+  version: 0.1
+  status: TEMPLATE
+  citation: "Nadeem et al. (2021) DOI:10.18653/v1/2021.acl-long.416"
+  licence: "MIT"
