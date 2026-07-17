@@ -4,7 +4,9 @@ Paired Wilcoxon signed-rank + Friedman across all benchmarks, with rank-biserial
 Applies Benjamini-Hochberg correction for multiple comparisons across categories.
 Writes results/divergence.csv.
 """
+
 from __future__ import annotations
+
 import argparse
 from itertools import combinations
 from pathlib import Path
@@ -55,17 +57,19 @@ def main():
             try:
                 w = wilcoxon(wide[a], wide[b], zero_method="pratt", correction=True)
                 effect = rank_biserial(wide[a], wide[b])
-                rows.append({
-                    "category": cat,
-                    "benchmark_a": a,
-                    "benchmark_b": b,
-                    "wilcoxon_statistic": w.statistic,
-                    "wilcoxon_pvalue": w.pvalue,
-                    "rank_biserial_r": effect,
-                    "friedman_chi2": f_stat,
-                    "friedman_pvalue": f_p,
-                    "n_models": wide.shape[0],
-                })
+                rows.append(
+                    {
+                        "category": cat,
+                        "benchmark_a": a,
+                        "benchmark_b": b,
+                        "wilcoxon_statistic": w.statistic,
+                        "wilcoxon_pvalue": w.pvalue,
+                        "rank_biserial_r": effect,
+                        "friedman_chi2": f_stat,
+                        "friedman_pvalue": f_p,
+                        "n_models": wide.shape[0],
+                    }
+                )
             except ValueError:
                 # Wilcoxon requires >= 1 non-zero difference
                 pass

@@ -3,7 +3,9 @@
 Spearman rho and Kendall tau over the model panel, with bootstrapped 95% CIs.
 Writes results/agreement.csv and results/agreement.png.
 """
+
 from __future__ import annotations
+
 import argparse
 from itertools import combinations
 from pathlib import Path
@@ -44,19 +46,21 @@ def main():
         kt = kendalltau(x, y)
         sp_lo, sp_hi = bootstrap_ci(x, y, spearmanr, rng=rng)
         kt_lo, kt_hi = bootstrap_ci(x, y, kendalltau, rng=rng)
-        rows.append({
-            "benchmark_a": a,
-            "benchmark_b": b,
-            "spearman_rho": sp.statistic,
-            "spearman_ci95_lo": sp_lo,
-            "spearman_ci95_hi": sp_hi,
-            "spearman_pvalue": sp.pvalue,
-            "kendall_tau": kt.statistic,
-            "kendall_ci95_lo": kt_lo,
-            "kendall_ci95_hi": kt_hi,
-            "kendall_pvalue": kt.pvalue,
-            "n_models": len(x),
-        })
+        rows.append(
+            {
+                "benchmark_a": a,
+                "benchmark_b": b,
+                "spearman_rho": sp.statistic,
+                "spearman_ci95_lo": sp_lo,
+                "spearman_ci95_hi": sp_hi,
+                "spearman_pvalue": sp.pvalue,
+                "kendall_tau": kt.statistic,
+                "kendall_ci95_lo": kt_lo,
+                "kendall_ci95_hi": kt_hi,
+                "kendall_pvalue": kt.pvalue,
+                "n_models": len(x),
+            }
+        )
 
     result = pd.DataFrame(rows)
     args.output_csv.parent.mkdir(parents=True, exist_ok=True)

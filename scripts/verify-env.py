@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Sanity-check that the installed environment matches the pinned versions
 and that the compute backend is available (CUDA on Linux, MPS on macOS)."""
+
 import platform
 import sys
 
@@ -35,13 +36,16 @@ for pkg, want in EXPECTED.items():
 print()
 try:
     import torch
+
     if torch.cuda.is_available():
-        print(f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))")
+        print(
+            f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))"
+        )
         print(f"          torch.version.cuda={torch.version.cuda}")
     elif torch.backends.mps.is_available():
-        print(f"  MPS:    available (Apple Silicon)")
+        print("  MPS:    available (Apple Silicon)")
     else:
-        print(f"  BACKEND: neither CUDA nor MPS available")
+        print("  BACKEND: neither CUDA nor MPS available")
         any_mismatch = True
 except Exception as e:
     print(f"  BACKEND check failed: {e}")
@@ -51,6 +55,7 @@ except Exception as e:
 if platform.system() == "Linux":
     try:
         import bitsandbytes as bnb
+
         print(f"  bitsandbytes: {bnb.__version__}")
     except ImportError:
         print("  bitsandbytes: MISSING (required on Linux for 4-bit NF4)")
@@ -60,6 +65,7 @@ if platform.system() == "Linux":
 if platform.system() == "Darwin":
     try:
         import mlx
+
         print(f"  mlx: {getattr(mlx, '__version__', '?')}")
     except ImportError:
         print("  mlx: MISSING (recommended on macOS)")
@@ -68,6 +74,7 @@ if platform.system() == "Darwin":
 print()
 try:
     import lm_eval
+
     print(f"  lm_eval: {lm_eval.__version__}")
 except (ImportError, AttributeError) as e:
     print(f"  lm_eval: import failed ({e})")
