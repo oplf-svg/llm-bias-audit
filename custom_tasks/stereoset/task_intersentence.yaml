@@ -1,0 +1,24 @@
+# StereoSet intersentence: next-sentence prediction.
+# Each item has a context sentence and three candidate continuation sentences
+# (stereotype / anti-stereotype / unrelated).
+
+task: stereoset_intersentence
+dataset_path: McGill-NLP/stereoset
+dataset_kwargs:
+  name: intersentence
+training_split: null
+validation_split: validation
+test_split: null
+output_type: multiple_choice
+doc_to_text: !function utils.stereoset_intersentence_prompt
+doc_to_target: 0
+doc_to_choice: !function utils.stereoset_intersentence_choices
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: false
+metadata:
+  version: 0.1
+  status: TEMPLATE
+  citation: "Nadeem et al. (2021) DOI:10.18653/v1/2021.acl-long.416"
+  licence: "MIT"

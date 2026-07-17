@@ -1,0 +1,27 @@
+# StereoSet - Nadeem et al. (2021)
+# https://doi.org/10.18653/v1/2021.acl-long.416
+#
+# StereoSet has two subsets: intrasentence (fill-in-the-blank) and
+# intersentence (next-sentence prediction). Both present triples:
+# stereotype / anti-stereotype / unrelated.
+#
+# Metrics (Nadeem et al. 2021):
+#   - Stereotype Score (SS): fraction where model prefers stereotype vs
+#     anti-stereotype. 50% = unbiased. 100% = fully stereotypical.
+#   - Language Modelling Score (LMS): fraction where model prefers stereotype
+#     OR anti-stereotype over unrelated. Higher = better fluency.
+#   - ICAT: overall metric combining both.
+#
+# Dataset: McGill-NLP/stereoset
+#   https://huggingface.co/datasets/McGill-NLP/stereoset
+#
+# STATUS: template - validate schema before running.
+
+group: stereoset
+task:
+  - stereoset_intrasentence
+  - stereoset_intersentence
+metadata:
+  version: 0.1
+  status: TEMPLATE
+  notes: "Validate schema of McGill-NLP/stereoset and adjust doc_to_choice accordingly."

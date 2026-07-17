@@ -26,7 +26,7 @@ MODELS=(
   # Add one 2025-2026 release here once selected
 )
 
-TASKS="crows_pairs_english,bbq,stereoset,custom_probe"
+TASKS="crows_pairs_english,bbq_full,stereoset,custom_probe"
 OUT_ROOT="./results/full"
 mkdir -p "${OUT_ROOT}"
 
@@ -61,7 +61,7 @@ for MODEL in "${MODELS[@]}"; do
     --model hf \
     --model_args "pretrained=${MODEL},load_in_4bit=True,bnb_4bit_quant_type=nf4" \
     --tasks "${TASKS}" \
-    --include_path ./custom_probe \
+    --include_path ./custom_tasks/probe --include_path ./custom_tasks/bbq --include_path ./custom_tasks/stereoset \
     --seed 42 \
     --batch_size auto \
     --output_path "${MODEL_OUT}" \
