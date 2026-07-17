@@ -3,20 +3,20 @@
 one row per (model, benchmark, category), columns = raw score, z-standardised score.
 Writes results/harmonised.parquet.
 """
+
 from __future__ import annotations
+
 import argparse
 import json
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
-
 BENCHMARK_TO_METRIC = {
-    "bbq":                 "bias_score",           # BBQ's own bias score
-    "crows_pairs_english": "pct_stereotype",       # pair-preference rate
-    "stereoset":           "ss",                   # stereotype score
-    "custom_probe":        "acc",                  # pair-preference rate (same as CrowS-Pairs)
+    "bbq": "bias_score",  # BBQ's own bias score
+    "crows_pairs_english": "pct_stereotype",  # pair-preference rate
+    "stereoset": "ss",  # stereotype score
+    "custom_probe": "acc",  # pair-preference rate (same as CrowS-Pairs)
 }
 
 
@@ -31,12 +31,14 @@ def load_all(results_root: Path) -> pd.DataFrame:
             if metric_key is None:
                 continue
             score = metrics.get(f"{metric_key},none") or metrics.get(metric_key)
-            rows.append({
-                "model": model_id,
-                "benchmark": task_id.split(",")[0],
-                "category": "overall",  # per-category rows come from log_samples files
-                "raw_score": score,
-            })
+            rows.append(
+                {
+                    "model": model_id,
+                    "benchmark": task_id.split(",")[0],
+                    "category": "overall",  # per-category rows come from log_samples files
+                    "raw_score": score,
+                }
+            )
     return pd.DataFrame(rows)
 
 
