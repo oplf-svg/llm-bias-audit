@@ -1,7 +1,11 @@
 #!/usr/bin/env python
-"""Sanity-check that the installed environment matches the pinned versions
-and that the compute backend is available (CUDA on Linux, MPS on macOS)."""
+"""Sanity-check the installed environment.
 
+Accepts:
+- torch versions with a CUDA build tag (e.g. 2.4.0+cu121 matches 2.4.0)
+- lm-eval package present (queried via importlib.metadata rather than __version__)
+"""
+import importlib.metadata as im
 import platform
 import sys
 
@@ -16,6 +20,12 @@ EXPECTED = {
     "scipy": "1.14.1",
 }
 
+
+def base_version(v: str) -> str:
+    # "2.4.0+cu121" -> "2.4.0"
+    return v.split("+")[0]
+
+
 print(f"Python: {sys.version.split()[0]} ({platform.machine()} on {platform.system()})")
 print()
 
@@ -24,23 +34,20 @@ for pkg, want in EXPECTED.items():
     try:
         mod = __import__(pkg)
         have = getattr(mod, "__version__", "?")
-        ok = "OK" if have == want else "MISMATCH"
-        if have != want:
+        ok = "OK" if base_version(have) == want else "MISMATCH"
+        if base_version(have) != want:
             any_mismatch = True
-        print(f"  {pkg:20s} want={want:10s} have={have:10s} [{ok}]")
+        print(f"  {pkg:20s} want={want:10s} have={have:15s} [{ok}]")
     except ImportError as e:
         print(f"  {pkg:20s} MISSING: {e}")
         any_mismatch = True
 
-# Compute backend check
+# Backend check
 print()
 try:
     import torch
-
     if torch.cuda.is_available():
-        print(
-            f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))"
-        )
+        print(f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))")
         print(f"          torch.version.cuda={torch.version.cuda}")
     elif torch.backends.mps.is_available():
         print("  MPS:    available (Apple Silicon)")
@@ -51,38 +58,32 @@ except Exception as e:
     print(f"  BACKEND check failed: {e}")
     any_mismatch = True
 
-# bitsandbytes only on Linux/CUDA
 if platform.system() == "Linux":
     try:
-        import bitsandbytes as bnb
+        bnb_ver = im.version("bitsandbytes")
+        print(f"  bitsandbytes: {bnb_ver}")
+    except im.PackageNotFoundError:
+        # Only required if we plan to use 4-bit quantisation; H100 fp16 script doesn't need it
+        print("  bitsandbytes: not installed (fp16 mode OK; required for 4-bit)")
 
-        print(f"  bitsandbytes: {bnb.__version__}")
-    except ImportError:
-        print("  bitsandbytes: MISSING (required on Linux for 4-bit NF4)")
-        any_mismatch = True
-
-# MLX only on macOS
 if platform.system() == "Darwin":
     try:
-        import mlx
-
-        print(f"  mlx: {getattr(mlx, '__version__', '?')}")
-    except ImportError:
+        mlx_ver = im.version("mlx")
+        print(f"  mlx: {mlx_ver}")
+    except im.PackageNotFoundError:
         print("  mlx: MISSING (recommended on macOS)")
 
-# lm-eval-harness
+# lm-eval via package metadata (it doesn't expose __version__ at import time)
 print()
 try:
-    import lm_eval
-
-    print(f"  lm_eval: {lm_eval.__version__}")
-except (ImportError, AttributeError) as e:
-    print(f"  lm_eval: import failed ({e})")
+    lm_eval_ver = im.version("lm-eval")
+    print(f"  lm-eval: {lm_eval_ver}")
+except im.PackageNotFoundError:
+    print("  lm-eval: not installed")
     any_mismatch = True
 
 print()
 if any_mismatch:
     print("!! Environment mismatch detected. Reinstall with the appropriate requirements file.")
     sys.exit(1)
-else:
-    print("OK - environment matches pinned versions.")
+print("OK - environment matches pinned versions.")
