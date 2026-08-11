@@ -1,16 +1,18 @@
-# Makefile - one-command interface to every workflow.
+# Makefile — one-command interface to every workflow.
 # Run `make` (or `make help`) for the menu.
 
-.PHONY: help install install-mac install-linux verify pilot full analyse report \
-        clean docker-build docker-pilot docker-full colab-link push-repo lock \
-        determinism-check status
+.PHONY: help install install-mac install-linux verify \
+        pilot full full-h100 analyse report \
+        finish cleanup status determinism-check \
+        docker-build docker-pilot docker-full \
+        lock clean push-repo colab-link
 
-# Auto-detect OS for the default `install` target
 OS := $(shell uname -s)
 
 help:                     ## List every make target
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+# ------------- SETUP -------------
 install:                  ## Auto-detect OS and install everything
 ifeq ($(OS),Darwin)
 	@$(MAKE) install-mac
@@ -27,39 +29,56 @@ install-linux:            ## Install on Linux (CUDA)
 verify:                   ## Check installed versions match the pins
 	.venv/bin/python scripts/verify-env.py
 
-pilot:                    ## Run pilot (Phi-3-mini x CrowS-Pairs, ~15 min)
-	bash scripts/pilot.sh
-
-full:                     ## Run full panel (Linux/CUDA only, ~8-12 GPU-hrs)
-	bash scripts/run_all.sh
-
-analyse:                  ## Run stats pipeline (Spearman, Wilcoxon, effect sizes)
-	.venv/bin/python analysis/harmonise.py
-	.venv/bin/python analysis/agreement.py
-	.venv/bin/python analysis/divergence.py
-
-report:                   ## Generate summary tables + figures
-	.venv/bin/python analysis/report.py
-
-lock:                     ## Regenerate uv.lock file for exact reproducibility
+lock:                     ## Regenerate lock files (uv pip compile)
 	uv pip compile requirements.txt --output-file requirements.lock
 	uv pip compile requirements-mac.txt --output-file requirements-mac.lock
 
-docker-build:             ## Build the pinned CUDA Docker image locally
+# ------------- PILOT -------------
+pilot:                    ## Single-model pilot (Phi-3-mini x CrowS-Pairs, ~15 min)
+	bash scripts/pilot.sh
+
+# ------------- FULL PANEL -------------
+full:                     ## Full panel (Linux/CUDA, 4-bit NF4, RTX 4090 / A40 / older GPUs)
+	bash scripts/run_all.sh
+
+full-h100:                ## Full panel (Linux/CUDA, fp16, H100+ GPUs)
+	bash scripts/run_all_h100.sh
+
+# ------------- WRAP-UP -------------
+finish:                   ## Verify full-panel completion + final push (on pod)
+	bash scripts/finish-runpod.sh
+
+cleanup:                  ## Free cached weights for a specific model (usage: make cleanup MODEL=<repo-id>)
+	bash scripts/cleanup-cache.sh $(MODEL)
+
+status:                   ## Show what has been run and what has not
+	bash scripts/status.sh
+
+# ------------- ANALYSIS (on your Mac / analysis machine) -------------
+analyse:                  ## Run analysis pipeline (harmonise -> agreement -> divergence -> report)
+	.venv/bin/python analysis/harmonise.py
+	.venv/bin/python analysis/agreement.py
+	.venv/bin/python analysis/divergence.py
+	.venv/bin/python analysis/report.py
+
+report:                   ## Regenerate figures and tables only (assumes harmonised.parquet exists)
+	.venv/bin/python analysis/report.py
+
+# ------------- REPRODUCIBILITY -------------
+determinism-check:        ## Run pilot twice, diff aggregate scores (proves reproducibility)
+	bash scripts/determinism_check.sh
+
+# ------------- DOCKER -------------
+docker-build:             ## Build the pinned CUDA Docker image
 	docker build -t llm-bias-audit:latest .
 
 docker-pilot:             ## Run pilot inside the Docker image
 	docker run --gpus all -v $(PWD):/work -w /work llm-bias-audit:latest bash scripts/pilot.sh
 
 docker-full:              ## Run the full panel inside the Docker image
-	docker run --gpus all -v $(PWD):/work -w /work llm-bias-audit:latest bash scripts/run_all.sh
+	docker run --gpus all -v $(PWD):/work -w /work llm-bias-audit:latest bash scripts/run_all_h100.sh
 
-determinism-check:        ## Run pilot twice, diff the results (proves reproducibility)
-	@bash scripts/determinism_check.sh
-
-status:                   ## Show what has been run and what has not
-	@bash scripts/status.sh
-
+# ------------- HOUSEKEEPING -------------
 clean:                    ## Remove venv, caches, and results (keeps configs)
 	rm -rf .venv __pycache__ */__pycache__ .cache
 	@echo "Cleaned. Configs and code preserved."
@@ -69,4 +88,4 @@ push-repo:                ## First-time push to a new private GitHub repo
 	@echo "  gh repo create llm-bias-audit --private --source=. --push"
 
 colab-link:               ## Print the Colab link for the pilot notebook
-	@echo "https://colab.research.google.com/github/oplf-svg/llm-bias-audit/blob/main/notebooks/00-colab-pilot.ipynb"
+	@echo "https://colab.research.google.com/github/oplf-svg/llm-bias-audit/blob/submission-2026-07-17/notebooks/00-colab-pilot.ipynb"

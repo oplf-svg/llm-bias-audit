@@ -1,0 +1,5 @@
+model_short,age,disability,gender,nationality,physical_appearance,race_color,religion,sexual_orientation,socioeconomic
+Meta-Llama-3.1-8B,0.7582,0.7231,0.6656,0.6481,0.7778,0.5748,0.8108,0.8817,0.6895
+Mistral-7B-v0.3,0.7473,0.7231,0.6781,0.6111,0.75,0.6043,0.7658,0.8602,0.7263
+Phi-3-mini-4k-instruct,0.6923,0.7231,0.5875,0.588,0.7639,0.5512,0.6937,0.7204,0.6421
+Qwen2-7B,0.7582,0.7538,0.6656,0.5926,0.7778,0.5827,0.6667,0.8817,0.6947

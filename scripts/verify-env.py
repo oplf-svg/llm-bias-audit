@@ -5,6 +5,7 @@ Accepts:
 - torch versions with a CUDA build tag (e.g. 2.4.0+cu121 matches 2.4.0)
 - lm-eval package present (queried via importlib.metadata rather than __version__)
 """
+
 import importlib.metadata as im
 import platform
 import sys
@@ -46,8 +47,11 @@ for pkg, want in EXPECTED.items():
 print()
 try:
     import torch
+
     if torch.cuda.is_available():
-        print(f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))")
+        print(
+            f"  CUDA:   available ({torch.cuda.get_device_name(0)}, {torch.cuda.device_count()} device(s))"
+        )
         print(f"          torch.version.cuda={torch.version.cuda}")
     elif torch.backends.mps.is_available():
         print("  MPS:    available (Apple Silicon)")

@@ -5,6 +5,7 @@ accelerate==0.34.2
 bitsandbytes==0.43.3
 datasets==2.20.0
 huggingface_hub==0.24.6
+hf_transfer==0.1.8
 sentencepiece==0.2.0
 protobuf==5.28.0
 

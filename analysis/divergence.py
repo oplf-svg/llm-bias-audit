@@ -1,29 +1,20 @@
 #!/usr/bin/env python
-"""Per-category divergence between benchmarks (RQ2).
-Paired Wilcoxon signed-rank + Friedman across all benchmarks, with rank-biserial effect sizes.
-Applies Benjamini-Hochberg correction for multiple comparisons across categories.
+"""Between-model spread per demographic category.
+
+For each of the 9 CrowS-Pairs categories, report the spread of pct_stereotype
+across the model panel. Where the spread is large, models disagree strongly
+about how biased they are on that category, which is preliminary evidence
+that "bias" depends on the model choice.
+
 Writes results/divergence.csv.
 """
 
 from __future__ import annotations
 
 import argparse
-from itertools import combinations
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from scipy.stats import friedmanchisquare, wilcoxon
-from statsmodels.stats.multitest import multipletests
-
-
-def rank_biserial(x, y):
-    """Effect size for a Wilcoxon signed-rank test."""
-    diff = np.array(x) - np.array(y)
-    pos = (diff > 0).sum()
-    neg = (diff < 0).sum()
-    total = pos + neg
-    return (pos - neg) / total if total > 0 else 0.0
 
 
 def main():
@@ -33,55 +24,40 @@ def main():
     args = ap.parse_args()
 
     df = pd.read_parquet(args.input)
-    if "category" not in df.columns or df["category"].nunique() <= 1:
-        raise SystemExit(
-            "No per-category data in harmonised.parquet. Ensure --log_samples was passed "
-            "to lm_eval and update analysis/harmonise.py to extract categories from the "
-            "per-sample JSONL."
-        )
+    df = df[df["benchmark_family"] == "crows_pairs"]
+    df = df[df["category"] != "overall"]
 
-    rows = []
-    for cat, sub in df.groupby("category"):
-        wide = sub.pivot(index="model", columns="benchmark", values="z_score").dropna()
-        if wide.shape[1] < 2 or wide.shape[0] < 3:
-            continue
+    if df.empty:
+        print("No per-category CrowS-Pairs data - cannot compute divergence.")
+        return
 
-        # Friedman across all benchmarks (>= 3 columns needed)
-        if wide.shape[1] >= 3:
-            f_stat, f_p = friedmanchisquare(*[wide[b].values for b in wide.columns])
-        else:
-            f_stat, f_p = np.nan, np.nan
+    stats = (
+        df.groupby("category")["score"]
+        .agg(mean="mean", std="std", min="min", max="max", n_models="count")
+        .assign(range=lambda x: x["max"] - x["min"])
+        .sort_values("range", ascending=False)
+        .round(4)
+    )
 
-        # Pairwise Wilcoxon
-        for a, b in combinations(wide.columns, 2):
-            try:
-                w = wilcoxon(wide[a], wide[b], zero_method="pratt", correction=True)
-                effect = rank_biserial(wide[a], wide[b])
-                rows.append(
-                    {
-                        "category": cat,
-                        "benchmark_a": a,
-                        "benchmark_b": b,
-                        "wilcoxon_statistic": w.statistic,
-                        "wilcoxon_pvalue": w.pvalue,
-                        "rank_biserial_r": effect,
-                        "friedman_chi2": f_stat,
-                        "friedman_pvalue": f_p,
-                        "n_models": wide.shape[0],
-                    }
-                )
-            except ValueError:
-                # Wilcoxon requires >= 1 non-zero difference
-                pass
-
-    result = pd.DataFrame(rows)
-    if len(result) > 0:
-        _, result["wilcoxon_pvalue_bh"], _, _ = multipletests(
-            result["wilcoxon_pvalue"], alpha=0.05, method="fdr_bh"
-        )
+    print("Between-model spread per category (sorted by range, largest first):")
+    print(stats.to_string())
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    result.to_csv(args.output, index=False)
-    print(f"Wrote {args.output} ({len(result)} rows)")
+    stats.to_csv(args.output)
+    print(f"\nWrote {args.output}")
+
+    # Also print an aggregate summary
+    print()
+    print("Aggregate summary:")
+    print(f"  Model panel size:               {df['model'].nunique()}")
+    print(f"  Categories:                     {df['category'].nunique()}")
+    print(f"  Overall mean pct_stereotype:    {df['score'].mean():.4f}")
+    print(f"  Overall std pct_stereotype:     {df['score'].std():.4f}")
+    print(
+        f"  Widest between-model spread:    {stats['range'].max():.4f} on '{stats['range'].idxmax()}'"
+    )
+    print(
+        f"  Narrowest between-model spread: {stats['range'].min():.4f} on '{stats['range'].idxmin()}'"
+    )
 
 
 if __name__ == "__main__":
