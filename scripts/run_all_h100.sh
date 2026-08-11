@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Full panel run with automatic resume.
-# Runs 4 open-weight models against the nine per-category CrowS-Pairs subtasks.
-# Safe to interrupt (Ctrl-C or spot-instance kill): the .completed sentinel per
-# model means restarting the script skips already-finished models.
+# Full panel run for H100-class GPUs (80 GB VRAM).
+# Uses fp16 rather than 4-bit NF4 quantisation, so results are more
+# accurate and remove the bitsandbytes non-determinism caveat.
+# Safe to interrupt (Ctrl-C or spot-instance kill): the .completed sentinel
+# per model means restarting the script skips already-finished models.
 
 set -euo pipefail
 
@@ -10,44 +11,33 @@ set -euo pipefail
 [[ -f .venv/bin/activate ]] && source .venv/bin/activate
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
-  echo "!! Full panel is Linux/CUDA only. Use scripts/pilot.sh on macOS."
-  exit 1
+  echo "!! Linux/CUDA only."; exit 1
 fi
-
 if ! command -v nvidia-smi >/dev/null; then
-  echo "!! nvidia-smi not found. This script requires a CUDA GPU."
-  exit 1
+  echo "!! nvidia-smi not found."; exit 1
 fi
 
 echo "==> GPU:"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
 
-# Model panel
 MODELS=(
   "microsoft/Phi-3-mini-4k-instruct"
   "mistralai/Mistral-7B-v0.3"
   "Qwen/Qwen2-7B"
   "meta-llama/Meta-Llama-3.1-8B"
-  # Add one 2025-2026 release here once selected
 )
 
-# 9 CrowS-Pairs per-category subtasks (validated in the pilot as working
-# in lm-evaluation-harness v0.4.7). BBQ full and StereoSet are custom
-# tasks scheduled for a later run.
 TASKS="crows_pairs_english_age,crows_pairs_english_disability,crows_pairs_english_gender,crows_pairs_english_nationality,crows_pairs_english_physical_appearance,crows_pairs_english_race_color,crows_pairs_english_religion,crows_pairs_english_sexual_orientation,crows_pairs_english_socioeconomic"
 
 OUT_ROOT="./results/full"
 mkdir -p "${OUT_ROOT}"
 
-# CodeCarbon tracker
-CARBON_LOG="${OUT_ROOT}/emissions.csv"
-python -c "from codecarbon import EmissionsTracker; t=EmissionsTracker(project_name='llm-bias-audit', output_dir='${OUT_ROOT}'); t.start(); print('carbon tracker started')" 2>/dev/null &
+python -c "from codecarbon import EmissionsTracker; t=EmissionsTracker(project_name='llm-bias-audit-h100', output_dir='${OUT_ROOT}'); t.start(); print('carbon tracker started')" 2>/dev/null &
 CC_PID=$!
 trap "kill $CC_PID 2>/dev/null || true" EXIT
 
 echo ""
-echo "==> Full panel: ${#MODELS[@]} models x $(echo ${TASKS} | tr ',' ' ' | wc -w) benchmarks"
-echo "==> Output root: ${OUT_ROOT}"
+echo "==> H100 full panel: ${#MODELS[@]} models x 9 CrowS-Pairs categories (fp16, no quantisation)"
 
 for MODEL in "${MODELS[@]}"; do
   SAFE="${MODEL//\//_}"
@@ -55,9 +45,7 @@ for MODEL in "${MODELS[@]}"; do
   SENTINEL="${MODEL_OUT}/.completed"
 
   if [[ -f "${SENTINEL}" ]]; then
-    echo ""
-    echo "== SKIP  ${MODEL}   (already complete: ${SENTINEL})"
-    continue
+    echo ""; echo "== SKIP  ${MODEL}"; continue
   fi
 
   mkdir -p "${MODEL_OUT}"
@@ -66,9 +54,10 @@ for MODEL in "${MODELS[@]}"; do
   echo "== RUN   ${MODEL}   @ $(date -u +%FT%TZ)"
   echo "================================================================"
 
+  # fp16 — no bitsandbytes, no quantisation artefacts
   lm_eval \
     --model hf \
-    --model_args "pretrained=${MODEL},load_in_4bit=True,bnb_4bit_quant_type=nf4" \
+    --model_args "pretrained=${MODEL},dtype=float16" \
     --tasks "${TASKS}" \
     --seed 42 \
     --batch_size auto \
@@ -77,16 +66,9 @@ for MODEL in "${MODELS[@]}"; do
     --log_samples \
     --verbosity INFO
 
-  # Mark this model complete
   date -u +%FT%TZ > "${SENTINEL}"
   echo "== DONE  ${MODEL}   @ $(date -u +%FT%TZ)"
 done
 
 echo ""
 echo "==> All models complete."
-echo ""
-echo "==> Next: run the analysis pipeline (locally or on the pod):"
-echo "      python analysis/harmonise.py"
-echo "      python analysis/agreement.py"
-echo "      python analysis/divergence.py"
-echo "      python analysis/report.py"
