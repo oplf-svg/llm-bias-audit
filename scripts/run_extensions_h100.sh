@@ -38,9 +38,9 @@ MODELS=(
 # Benchmark selection per mode
 BENCHMARKS=()
 case "${MODE}" in
-  cheap) BENCHMARKS=("stereoset") ;;
-  full)  BENCHMARKS=("stereoset" "bbq") ;;
-  all)   BENCHMARKS=("stereoset" "bbq")
+  cheap) BENCHMARKS=() ;;
+  full)  BENCHMARKS=("bbq") ;;
+  all)   BENCHMARKS=("bbq")
          [[ -d "./custom_probe" ]] && BENCHMARKS+=("custom_probe") \
                                    || echo "   (skipping custom_probe — directory not present)" ;;
   *)     echo "!! Unknown MODE='${MODE}' (use cheap|full|all)"; exit 2 ;;
