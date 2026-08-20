@@ -101,3 +101,4 @@ emissions.csv
 # Docker
 # ==============================================================
 .docker/
+results/full/**/samples_bbq_*.jsonl
