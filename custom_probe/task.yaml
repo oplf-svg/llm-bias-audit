@@ -1,0 +1,25 @@
+# lm-evaluation-harness task definition for the O6 UK-specific bias probe.
+# Follows the CrowS-Pairs scoring protocol: for each item, compare
+# log-likelihood of `sent_more` (stereotyped) vs `sent_less` (comparator);
+# a stereotype-preferring model scores > 0.5 on pct_stereotype.
+#
+# Load into lm_eval with:
+#   lm_eval --include_path ./custom_probe/ --tasks custom_probe ...
+
+task: custom_probe
+dataset_path: json
+dataset_kwargs:
+  data_files:
+    test: custom_probe/probe_items.jsonl
+test_split: test
+output_type: multiple_choice
+doc_to_text: ""
+doc_to_target: 0
+doc_to_choice: !function utils.doc_to_choice
+process_results: !function utils.process_results
+metric_list:
+  - metric: pct_stereotype
+    aggregation: mean
+    higher_is_better: false
+metadata:
+  version: 0.1
