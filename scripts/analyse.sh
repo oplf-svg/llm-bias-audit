@@ -5,11 +5,11 @@
 
 set -euo pipefail
 
-echo "==> 1/6  Pull latest results from GitHub"
+echo "==> 1/7  Pull latest results from GitHub"
 git pull
 
 echo ""
-echo "==> 2/6  Activate environment"
+echo "==> 2/7  Activate environment"
 if [[ -d .venv ]]; then
   # shellcheck disable=SC1091
   source .venv/bin/activate
@@ -19,26 +19,31 @@ else
 fi
 
 echo ""
-echo "==> 3/6  Harmonise raw results"
+echo "==> 3/7  Harmonise raw results"
 python analysis/harmonise.py
 
 echo ""
-echo "==> 4/6  Cross-model rank agreement (preliminary RQ1 signal)"
+echo "==> 4/7  Cross-model rank agreement within CrowS-Pairs"
 python analysis/agreement.py
 
 echo ""
-echo "==> 5/6  Between-model divergence per category (preliminary RQ2 signal)"
+echo "==> 5/7  Cross-benchmark rank agreement (direct RQ1 answer)"
+python analysis/cross_benchmark.py
+
+echo ""
+echo "==> 6/7  Between-model divergence per category (RQ2 signal)"
 python analysis/divergence.py
 
 echo ""
-echo "==> 6/6  Generate figures and summary tables"
+echo "==> 7/7  Generate figures and summary tables"
 python analysis/report.py
 
 echo ""
 echo "==> Done. Outputs in:"
 echo "     results/harmonised.parquet    (raw wide table)"
 echo "     results/harmonised.csv        (same, spreadsheet-friendly)"
-echo "     results/agreement.csv         (pairwise Spearman/Kendall)"
+echo "     results/agreement.csv         (pairwise Spearman/Kendall, within CrowS-Pairs)"
+echo "     results/cross_benchmark.csv   (pairwise Spearman/Kendall, across benchmarks — RQ1)"
 echo "     results/divergence.csv        (per-category between-model spread)"
 echo "     results/tables/               (model summary, category summary)"
 echo "     results/figures/              (heatmap, per-category bar chart)"
