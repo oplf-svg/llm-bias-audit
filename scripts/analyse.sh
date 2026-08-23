@@ -5,11 +5,11 @@
 
 set -euo pipefail
 
-echo "==> 1/7  Pull latest results from GitHub"
+echo "==> 1/8  Pull latest results from GitHub"
 git pull
 
 echo ""
-echo "==> 2/7  Activate environment"
+echo "==> 2/8  Activate environment"
 if [[ -d .venv ]]; then
   # shellcheck disable=SC1091
   source .venv/bin/activate
@@ -19,24 +19,28 @@ else
 fi
 
 echo ""
-echo "==> 3/7  Harmonise raw results"
+echo "==> 3/8  Harmonise raw results"
 python analysis/harmonise.py
 
 echo ""
-echo "==> 4/7  Cross-model rank agreement within CrowS-Pairs"
+echo "==> 4/8  Cross-model rank agreement within CrowS-Pairs"
 python analysis/agreement.py
 
 echo ""
-echo "==> 5/7  Cross-benchmark rank agreement (direct RQ1 answer)"
+echo "==> 5/8  Cross-benchmark rank agreement (direct RQ1 answer)"
 python analysis/cross_benchmark.py
 
 echo ""
-echo "==> 6/7  Between-model divergence per category (RQ2 signal)"
+echo "==> 6/8  Between-model divergence per category (RQ2 signal)"
 python analysis/divergence.py
 
 echo ""
-echo "==> 7/7  Generate figures and summary tables"
+echo "==> 7/8  Generate figures and summary tables"
 python analysis/report.py
+
+echo ""
+echo "==> 8/8  Cross-benchmark visualisations (Figures 4.3-4.6)"
+python analysis/plot_cross_benchmark.py
 
 echo ""
 echo "==> Done. Outputs in:"
