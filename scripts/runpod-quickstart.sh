@@ -12,8 +12,12 @@ if [[ -z "${GH_TOKEN:-}" ]] || [[ -z "${HF_TOKEN:-}" ]]; then
   exit 1
 fi
 
-REPO_DIR=/workspace/llm-bias-audit
-REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/oplf-svg/llm-bias-audit.git"
+# Fork-friendly: override GH_USER / REPO_NAME on the command line to point at your own fork.
+GH_USER="${GH_USER:-oplf-svg}"
+REPO_NAME="${REPO_NAME:-llm-bias-audit}"
+
+REPO_DIR="/workspace/${REPO_NAME}"
+REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${GH_USER}/${REPO_NAME}.git"
 
 echo "==> Clone or update repo"
 if [[ -d "${REPO_DIR}/.git" ]]; then
@@ -30,12 +34,12 @@ source .venv/bin/activate
 
 echo ""
 echo "==> Configure git identity for auto-push"
-git config user.email "oplf-svg@users.noreply.github.com"
-git config user.name "oplf-svg"
+git config user.email "${GH_USER}@users.noreply.github.com"
+git config user.name "${GH_USER}"
 
 echo ""
 echo "==> Authenticate HuggingFace"
-huggingface-cli login --token "${HF_TOKEN}" --add-to-git-credential=False
+huggingface-cli login --token "${HF_TOKEN}"
 
 echo ""
 echo "==> Start autopush in background (pushes results/ every 5 min)"
